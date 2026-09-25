@@ -1,0 +1,48 @@
+defmodule PrimesFinder.Algebra do
+  @moduledoc """
+  Funciones auxiliares para la división de intervalos y ordenamiento.
+  """
+
+  @doc """
+  Divide el intervalo [1, n] en `num_workers` bloques lo más equitativos posible.
+
+  Retorna una lista de tuplas `{inicio, fin}` que cubren todos los enteros
+  desde 1 hasta n. Si n < num_workers, se generan solo los bloques no vacíos.
+
+  ## Ejemplos
+
+      iex> PrimesFinder.Algebra.dividir_intervalo(40, 4)
+      [{1, 10}, {11, 20}, {21, 30}, {31, 40}]
+
+      iex> PrimesFinder.Algebra.dividir_intervalo(10, 3)
+      [{1, 4}, {5, 7}, {8, 10}]
+
+      iex> PrimesFinder.Algebra.dividir_intervalo(3, 5)
+      [{1, 1}, {2, 2}, {3, 3}]
+  """
+  @spec dividir_intervalo(pos_integer(), pos_integer()) :: [{pos_integer(), pos_integer()}]
+  def dividir_intervalo(n, num_workers) when n > 0 and num_workers > 0 do
+    tamano_base = div(n, num_workers)
+    resto = rem(n, num_workers)
+
+    {bloques, _} =
+      Enum.reduce(1..num_workers, {[], 1}, fn i, {acc, inicio} ->
+        tamano = if i <= resto, do: tamano_base + 1, else: tamano_base
+        fin = inicio + tamano - 1
+        bloque = {inicio, fin}
+        {[bloque | acc], fin + 1}
+      end)
+
+    bloques
+    |> Enum.reverse()
+    |> Enum.filter(fn {a, b} -> a <= b end)
+  end
+
+  @doc """
+  Ordena una lista de números de menor a mayor.
+  """
+  @spec ordenar(list()) :: list()
+  def ordenar(lista) when is_list(lista) do
+    Enum.sort(lista)
+  end
+end
